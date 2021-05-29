@@ -12,8 +12,16 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import de.embuer.emotes.Listeners.ChatListener;
+import de.embuer.emotes.Listeners.LeaveListener;
+import de.embuer.emotes.Listeners.PackListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 @Plugin(
         id = "emotes",
@@ -23,16 +31,16 @@ import net.kyori.adventure.text.format.NamedTextColor;
         authors = {"Embuer"}
 )
 public class Main {
-    private final ProxyServer server;
+    public static ProxyServer server;
     private final CommandManager commandManager;
 
     @Inject
     public Main(ProxyServer server, CommandManager commandManager) {
-        this.server = server;
+        Main.server = server;
         this.commandManager = commandManager;
     }
-    public void createBrigadierCommand() {
-        LiteralCommandNode<CommandSource> helloNode1 = LiteralArgumentBuilder
+    public void createLoadEmotesCommand() {
+        LiteralCommandNode<CommandSource> loademotes = LiteralArgumentBuilder
                 .<CommandSource>literal("loademotes")
                 .requires(commandSource -> commandSource instanceof Player)
                 .executes(context -> {
@@ -42,12 +50,12 @@ public class Main {
                 })
                 .build();
 
-        BrigadierCommand command1 = new BrigadierCommand(helloNode1);
-        commandManager.register(command1);
+        BrigadierCommand loademotescommand = new BrigadierCommand(loademotes);
+        commandManager.register(loademotescommand);
     }
 
-    public void createBrigadierCommand1() {
-        LiteralCommandNode<CommandSource> helloNode = LiteralArgumentBuilder
+    public void createEmotesCommand() {
+        LiteralCommandNode<CommandSource> emotes = LiteralArgumentBuilder
                 .<CommandSource>literal("emotes")
                 .requires(commandSource -> commandSource instanceof Player)
                 .executes(context -> {
@@ -57,14 +65,16 @@ public class Main {
                 })
                 .build();
 
-        BrigadierCommand command = new BrigadierCommand(helloNode);
-        commandManager.register(command);
+        BrigadierCommand emotescommand = new BrigadierCommand(emotes);
+        commandManager.register(emotescommand);
     }
 
     @Subscribe
     public void onInitialize(ProxyInitializeEvent event) {
         server.getEventManager().register(this, new ChatListener());
-        createBrigadierCommand();
-        createBrigadierCommand1();
+        server.getEventManager().register(this, new PackListener());
+        server.getEventManager().register(this, new LeaveListener());
+        createEmotesCommand();
+        createLoadEmotesCommand();
     }
 }
