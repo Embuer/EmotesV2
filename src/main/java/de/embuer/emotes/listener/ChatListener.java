@@ -24,7 +24,7 @@ public class ChatListener {
                         replace = Component.text(event.getMessage().replaceAll(emote, HGLaborEmotes.getConfig().getEmotes().get(emote)));
                     }
                 }
-                if (PlayerList.exists(it)) {
+                if (PlayerList.exists(it) && PlayerList.get(it).hasPack()) {
                     it.sendMessage(replace);
                 } else {
                     it.sendMessage(Component.text(event.getMessage()));
