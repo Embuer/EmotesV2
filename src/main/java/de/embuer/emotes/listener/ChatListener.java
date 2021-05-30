@@ -8,6 +8,11 @@ import de.embuer.emotes.HGLaborEmotes;
 import de.embuer.emotes.player.LaborPlayer;
 import de.embuer.emotes.player.PlayerList;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
+import java.util.function.Consumer;
 
 public class ChatListener {
 
@@ -15,13 +20,18 @@ public class ChatListener {
     public void onPlayerChat(PlayerChatEvent event) {
         Player player = event.getPlayer();
         if (PlayerList.exists(player) && PlayerList.get(player).hasPack()) {
+            event.setResult(PlayerChatEvent.ChatResult.denied());
             LaborPlayer laborPlayer = PlayerList.get(player);
             for (Player it : HGLaborEmotes.server.getAllPlayers()) {
                 Component replace = Component.text(event.getMessage());
                 String message = event.getMessage();
                 for (String emote : HGLaborEmotes.getConfig().getEmotes().keySet()) {
-                    if (message.contains(" " + emote + " ") || message.contains(" " + emote) || message.equals(emote)) {
-                        replace = Component.text(event.getMessage().replaceAll(emote, HGLaborEmotes.getConfig().getEmotes().get(emote)));
+                    if (message.contains(" " + emote + " ") || message.contains(" " + emote) || message.contains(emote + " ")) {
+
+                        TextComponent tc = (Component.text(HGLaborEmotes.getConfig().getEmotes().get(emote)).append(translate(""))).hoverEvent(HoverEvent.showText(Component.text(emote)));
+                        replace = replace.replaceText(emote, tc);
+                    } else if (message.equals(emote)) {
+                        replace = (Component.text(HGLaborEmotes.getConfig().getEmotes().get(emote)).append(translate(""))).hoverEvent(HoverEvent.showText(Component.text(emote)));
                     }
                 }
                 if (PlayerList.exists(it) && PlayerList.get(it).hasPack()) {
@@ -31,5 +41,9 @@ public class ChatListener {
                 }
             }
         }
+    }
+    public
+    net.kyori.adventure.text.TextComponent translate(String s) {
+        return LegacyComponentSerializer.legacySection().deserialize(s);
     }
 }
