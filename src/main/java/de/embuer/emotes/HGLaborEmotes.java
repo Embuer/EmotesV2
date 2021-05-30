@@ -9,36 +9,38 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import de.embuer.emotes.Listeners.ChatListener;
-import de.embuer.emotes.Listeners.LeaveListener;
-import de.embuer.emotes.Listeners.PackListener;
+import de.embuer.emotes.config.EmotesConfig;
+import de.embuer.emotes.listener.ChatListener;
+import de.embuer.emotes.listener.JoinQuitListener;
+import de.embuer.emotes.listener.PackListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.nio.file.Path;
 
 @Plugin(
         id = "emotes",
         name = "Emotes",
         version = "1.0-SNAPSHOT",
-        description = "Adds Emotes to Minecraft",
+        description = "Adds Twitch Emotes to Minecraft",
         authors = {"Embuer"}
 )
-public class Main {
+public class HGLaborEmotes {
+
     public static ProxyServer server;
+    private static EmotesConfig config;
     private final CommandManager commandManager;
 
     @Inject
-    public Main(ProxyServer server, CommandManager commandManager) {
-        Main.server = server;
+    public HGLaborEmotes(ProxyServer server, CommandManager commandManager, @DataDirectory Path dataDirectoryPath) {
+        HGLaborEmotes.server = server;
         this.commandManager = commandManager;
+        config = new EmotesConfig().load(dataDirectoryPath);
     }
+
     public void createLoadEmotesCommand() {
         LiteralCommandNode<CommandSource> loademotes = LiteralArgumentBuilder
                 .<CommandSource>literal("loademotes")
@@ -54,12 +56,16 @@ public class Main {
         commandManager.register(loademotescommand);
     }
 
+    public static EmotesConfig getConfig() {
+        return config;
+    }
+
     public void createEmotesCommand() {
         LiteralCommandNode<CommandSource> emotes = LiteralArgumentBuilder
                 .<CommandSource>literal("emotes")
                 .requires(commandSource -> commandSource instanceof Player)
                 .executes(context -> {
-                    Component message = Component.text("Available Emotes are: 4Head BRUH D: PauseChamp PepeHands pepeLaugh PepoG PogChamp Sadge tf WeirdChamp YEP", NamedTextColor.WHITE);
+                    Component message = Component.text("Available Emotes are: " + config.getEmotes().keySet(), NamedTextColor.WHITE);
                     context.getSource().sendMessage(message);
                     return 1;
                 })
@@ -73,7 +79,7 @@ public class Main {
     public void onInitialize(ProxyInitializeEvent event) {
         server.getEventManager().register(this, new ChatListener());
         server.getEventManager().register(this, new PackListener());
-        server.getEventManager().register(this, new LeaveListener());
+        server.getEventManager().register(this, new JoinQuitListener());
         createEmotesCommand();
         createLoadEmotesCommand();
     }
