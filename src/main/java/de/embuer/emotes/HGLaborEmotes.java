@@ -16,10 +16,14 @@ import de.embuer.emotes.config.EmotesConfig;
 import de.embuer.emotes.listener.ChatListener;
 import de.embuer.emotes.listener.JoinQuitListener;
 import de.embuer.emotes.listener.PackListener;
+import de.embuer.emotes.player.PlayerList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.checkerframework.checker.units.qual.K;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 @Plugin(
         id = "emotes",
@@ -41,21 +45,6 @@ public class HGLaborEmotes {
         config = new EmotesConfig().load(dataDirectoryPath);
     }
 
-    public void createLoadEmotesCommand() {
-        LiteralCommandNode<CommandSource> loademotes = LiteralArgumentBuilder
-                .<CommandSource>literal("loademotes")
-                .requires(commandSource -> commandSource instanceof Player)
-                .executes(context -> {
-                    Player p = (Player) context.getSource();
-                    p.sendResourcePack("https://dl.dropboxusercontent.com/s/ia2rbz1rxcos3r4/Emotes.zip?dl=0");
-                    return 1;
-                })
-                .build();
-
-        BrigadierCommand loademotescommand = new BrigadierCommand(loademotes);
-        commandManager.register(loademotescommand);
-    }
-
     public static EmotesConfig getConfig() {
         return config;
     }
@@ -65,8 +54,24 @@ public class HGLaborEmotes {
                 .<CommandSource>literal("emotes")
                 .requires(commandSource -> commandSource instanceof Player)
                 .executes(context -> {
-                    Component message = Component.text("Available Emotes are: " + config.getEmotes().keySet(), NamedTextColor.WHITE);
-                    context.getSource().sendMessage(message);
+                    Player player = (Player) context.getSource();
+                    if (PlayerList.exists(player)) {
+                        if (PlayerList.exists(player) && PlayerList.get(player).hasPack()) {
+                            ArrayList<String> feedback = new ArrayList<>();
+                            Iterator<String> itr = config.getEmotes().keySet().iterator();
+                            while (itr.hasNext()) {
+                                String key = itr.next();
+                                String value = config.getEmotes().get(key);
+
+                                feedback.add(key + " " + value);
+                            }
+                            Component message = Component.text("Available Emotes are: " + feedback, NamedTextColor.WHITE);
+                            context.getSource().sendMessage(message);
+                        } else {
+                            player.sendResourcePack(HGLaborEmotes.getConfig().getPacklink().get("packlink"));
+                        }
+                    }
+
                     return 1;
                 })
                 .build();
@@ -81,6 +86,5 @@ public class HGLaborEmotes {
         server.getEventManager().register(this, new PackListener());
         server.getEventManager().register(this, new JoinQuitListener());
         createEmotesCommand();
-        createLoadEmotesCommand();
     }
 }

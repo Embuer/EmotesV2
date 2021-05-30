@@ -6,7 +6,7 @@ import com.velocitypowered.api.event.player.PlayerResourcePackStatusEvent;
 import de.embuer.emotes.player.LaborPlayer;
 import de.embuer.emotes.player.PlayerList;
 
-public class PackListener {
+public class  PackListener {
 
     @Subscribe(order = PostOrder.FIRST)
     public void onPlayerChat(PlayerResourcePackStatusEvent event) {

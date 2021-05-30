@@ -14,13 +14,13 @@ public class ChatListener {
     @Subscribe(order = PostOrder.FIRST)
     public void onPlayerChat(PlayerChatEvent event) {
         Player player = event.getPlayer();
-        if (PlayerList.exists(player)) {
+        if (PlayerList.exists(player) && PlayerList.get(player).hasPack()) {
             LaborPlayer laborPlayer = PlayerList.get(player);
             for (Player it : HGLaborEmotes.server.getAllPlayers()) {
                 Component replace = Component.text(event.getMessage());
                 String message = event.getMessage();
                 for (String emote : HGLaborEmotes.getConfig().getEmotes().keySet()) {
-                    if (message.contains(emote)) {
+                    if (message.contains(" " + emote + " ") || message.contains(" " + emote) || message.equals(emote)) {
                         replace = Component.text(event.getMessage().replaceAll(emote, HGLaborEmotes.getConfig().getEmotes().get(emote)));
                     }
                 }

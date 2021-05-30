@@ -14,19 +14,26 @@ import java.util.Map;
 public class EmotesConfig {
 
     private final HashMap<String, String> emotes;
+    private final HashMap<String, String> packlink;
 
     public EmotesConfig() {
         this.emotes = Utils.hashMapOf(ImmutableMap.of(
-           "D:", "\uE003",
-           "PauseChamp", "\uE004",
-           "PepeLaugh", "\uE006",
-           "Sadge", "\uE009",
-           "WeirdChamp", "\uE011"
+                "4Head","\uE001",
+                "5Head","\uE002",
+                "BRUH","\uE003",
+                "FeelsBirthdayMan","\uE004",
+                "FeelsStrongMan","\uE005"
+        ));
+        this.packlink = Utils.hashMapOf(ImmutableMap.of(
+                "packlink", "https://dl.dropboxusercontent.com/s/7q9vm5n1i17fsr6/EmotePack.zip?dl=0"
         ));
     }
 
     public HashMap<String, String> getEmotes() {
         return emotes;
+    }
+    public HashMap<String, String> getPacklink() {
+        return packlink;
     }
 
     public EmotesConfig load(Path dataDirectory) {
@@ -53,7 +60,9 @@ public class EmotesConfig {
             TomlWriter tomlWriter = new TomlWriter.Builder().build();
             Map<String, Object> map = new HashMap<>();
             map.put("emotes", emotes);
+            map.put("packlink", packlink);
             tomlWriter.write(map, file);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
