@@ -26,13 +26,17 @@ public class ChatListener {
                 Component replace = Component.text(event.getMessage());
                 String message = event.getMessage();
                 for (String emote : HGLaborEmotes.getConfig().getEmotes().keySet()) {
-                    if (message.contains(" " + emote + " ") || message.contains(" " + emote) || message.contains(emote + " ")) {
-
-                        TextComponent tc = (Component.text(HGLaborEmotes.getConfig().getEmotes().get(emote)).append(translate(""))).hoverEvent(HoverEvent.showText(Component.text(emote)));
-                        replace = replace.replaceText(emote, tc);
-                    } else if (message.equals(emote)) {
+                    String[] arr = message.split(" ");
+                     if (message.equals(emote)) {
                         replace = (Component.text(HGLaborEmotes.getConfig().getEmotes().get(emote)).append(translate(""))).hoverEvent(HoverEvent.showText(Component.text(emote)));
-                    }
+                    }else {
+                         for (String ss : arr) {
+                             if (ss.equals(emote)) {
+                                 TextComponent tc = (Component.text(HGLaborEmotes.getConfig().getEmotes().get(emote)).append(translate(""))).hoverEvent(HoverEvent.showText(Component.text(emote)));
+                                 replace = replace.replaceText(emote, tc);
+                             }
+                         }
+                     }
                 }
                 if (PlayerList.exists(it) && PlayerList.get(it).hasPack()) {
                     it.sendMessage(replace);
